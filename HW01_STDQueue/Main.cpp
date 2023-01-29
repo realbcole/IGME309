@@ -1,87 +1,95 @@
 #include "Main.h"
-template <typename T> 
-void Print(std::deque<T> a_queue)
-{
-	std::cout << "Begining of queue......." << std::endl;
-	uint count = a_queue.size();
-	for (uint i = 0; i < count; ++i)
-	{
-		std::cout << a_queue[i];
-		std::cout << std::endl;
-	}
-	std::cout << "End of queue............" << std::endl;
-}
+#include "queue.h"
+#include <iostream>
+#include "Alberto.h"
 
 int main(void)
 {
-	std::deque<int> myQueue;
+	// Create new priority queue
+	PriorityQueue<AlbertoClass> myQueue;
+
 	//Push elements
-	myQueue.push_back(0);
-	std::cout << "	just pushed +++++" << std::endl;
-	myQueue.push_back(1);
-	std::cout << "	just pushed +++++" << std::endl;
-	myQueue.push_back(2);
-	std::cout << "	just pushed +++++" << std::endl;
+	myQueue.Push(0);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(1);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(2);
+	std::cout << "Pushed" << std::endl;
 	//Print queue
-	Print<int>(myQueue);
+	myQueue.Print();
 	//pop an element
-	myQueue.pop_front();
-	std::cout << "		just popped -----" << std::endl;
+	std::cout << "Popped: " << myQueue.Pop() << std::endl;
 	//add elements
-	myQueue.push_back(3);
-	std::cout << "	just pushed +++++" << std::endl;
-	myQueue.push_back(4);
-	std::cout << "	just pushed +++++" << std::endl;
-	myQueue.push_back(5);
-	std::cout << "	just pushed +++++" << std::endl;
+	myQueue.Push(3);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(4);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(5);
+	std::cout << "Pushed" << std::endl;
 	//Print queue
-	Print<int>(myQueue);
-	myQueue.pop_front();
-	std::cout << "		just popped -----" << std::endl;
-	myQueue.pop_front();
-	std::cout << "		just popped -----" << std::endl;
+	myQueue.Print();
+	// Pop a few more
+	std::cout << "Popped: " << myQueue.Pop() << std::endl;
+	std::cout << "Popped: " << myQueue.Pop() << std::endl;
 	//Print queue
-	Print<int>(myQueue);
+	myQueue.Print();
 	//clear queue
-	uint count = myQueue.size();
+	uint count = myQueue.GetSize();
 	for (uint i = 0; i < count; ++i)
 	{
-		myQueue.pop_front();
-		std::cout << "		just popped -----" << std::endl;
+		std::cout << "Popped: " << myQueue.Pop() << std::endl;
 	}
 	//Print queue
-	Print<int>(myQueue);
+	myQueue.Print();
+	// Add some more elements
+	myQueue.Push(0);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(1);
+	std::cout << "Pushed" << std::endl;
+	myQueue.Push(2);
+	std::cout << "Pushed" << std::endl;
 
-	//Complex Data usage
-	std::deque<Foo> myFooQueue;
-	for (uint i = 0; i < 10; ++i)
-	{
-		Foo foo(i);
-		myFooQueue.push_back(foo);
-		std::cout << "	just pushed +++++" << std::endl;
-		if (i % 2 == 0)
-		{
-			myFooQueue.pop_front();
-			std::cout << "		just popped -----" << std::endl;
-		}
-	}
+	std::cout << "Original Queue:" << std::endl;
 
-	std::deque<AlbertoClass> myAlbertoQueue;
-	for (uint i = 30; i < 40; ++i)
+	// Print
+	myQueue.Print();
+
+
+	std::cout << "Copy Assignment Constructor" << std::endl;
+
+	std::cout << "New Queue:" << std::endl;
+
+	// COPY ASSIGNMENT CONSTRUCTOR
+	PriorityQueue<AlbertoClass> myOtherQueue = myQueue;
+	// Print
+	myOtherQueue.Print();
+	// Modify new queue
+	myOtherQueue.Push(5);
+	std::cout << "Pushed" << std::endl;
+	myOtherQueue.Push(6);
+	std::cout << "Pushed" << std::endl;
+	std::cout << "Popped: " << myOtherQueue.Pop() << std::endl;
+	
+	// Print
+	myOtherQueue.Print();
+
+	std::cout << "Copy Constructor" << std::endl;
+
+	// COPY CONSTRUCTOR
+	myOtherQueue = myQueue;
+
+	std::cout << "New queue after setting equal to original queue:" << std::endl;
+
+	// Print
+	myOtherQueue.Print();
+
+	// Check for memory leaks
+	if (_CrtDumpMemoryLeaks)
 	{
-		AlbertoClass alberto(i);
-		myAlbertoQueue.push_back(alberto);
-		std::cout << "	just pushed +++++" << std::endl;
-	}
-	std::cout << "	Content" << std::endl;
-	for (uint i = 0; i < 10; ++i)
-	{
-		std::cout << myAlbertoQueue[i] << std::endl;
+		std::cout << "MEM LEAK" << std::endl;
 	}
 
 	std::cout << "Press Enter to finish." << std::endl;
 
-
-	
 	getchar();
 }
