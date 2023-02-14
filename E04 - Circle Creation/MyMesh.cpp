@@ -16,9 +16,25 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		Calculate a_nSubdivisions number of points around a center point in a radial manner
 		then call the AddTri function to generate a_nSubdivision number of faces
 	*/
-	AddTri(	vector3(0.0f, 0.0f, 0.0f),
-			vector3(1.0f, 0.0f, 0.0f),
-			vector3(0.77f, 0.77f, 0.0f));
+
+	GLfloat angle = 0; // Starting point
+	GLfloat change = (GLfloat)(2 * PI / (GLfloat)a_nSubdivisions); // How much to move for the next point
+	//					^ Need to cast    ^ because it will return a float, and a_nSubdivisions is an int
+	// Formula : 2pi represents a full circle in radians, so you divide by the subdivisions to get how much you have to move to get to the next point
+
+	std::vector<vector3> vertices; // All the vertices
+
+	for (int i = 0; i < a_nSubdivisions; i++){ // For each subdivision
+		vector3 vertex = vector3(cos(angle) * a_fRadius, sin(angle) * a_fRadius, 0.0f); // Make a vertex in the correct position
+		vertices.push_back(vertex); // Add to the vertices vector
+		angle += change; // Move to the next point
+	}
+
+	for (int i = 0; i < a_nSubdivisions; i++) { // For each subdivision
+		AddTri(vector3(0.0f), vertices[i], vertices[(i + 1) % a_nSubdivisions]); // Make a triangle with the center of the circle and the two points on the outer edge
+		//													^ Need to mod so you don't go more than the size of the vertices vector
+		// So, if you have 5 subdivisions, and you are about to do vertices[6], it will make it vertices[0] which is the point you started with, so it completes the circle
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
