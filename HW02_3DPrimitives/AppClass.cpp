@@ -2,7 +2,7 @@
 void Application::InitVariables(void)
 {
 	//Change this to your name and email
-	m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Brandon Cole - bec8980@rit.edu";
 
 	//Set the position and target of the camera
 	//(I'm at [0,0,10], looking at [0,0,0] and up is the positive Y axis)
@@ -43,7 +43,7 @@ void Application::InitVariables(void)
 		m_pMesh->GenerateSphere(1.0f, 5, C_CYAN);
 		break;
 	case 5:
-		m_pMesh->GenerateTorus(1.0f, 0.6f, 10, 10, C_CYAN);
+		m_pMesh->GenerateTorus(1.0f, 0.6f, 10, 20, C_CYAN);
 		break;
 	}
 }
