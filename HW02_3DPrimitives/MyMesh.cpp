@@ -346,7 +346,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	// Replace this with your code
 	
 	// Same as torus, just without moving the circles
-	// Looks weird with low number of subdivisions, looks normal with 12
+	// Looks weird with low number of subdivisions, looks normal with 12, so I think it is fine
 	std::vector<std::vector<vector3>> circles;
 	GLfloat theta = 0;
 	GLfloat delta = static_cast<GLfloat>(2.0 * PI / static_cast<GLfloat>(a_nSubdivisions));
