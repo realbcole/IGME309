@@ -34,6 +34,12 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 
+	m_qOrientation *= quaternion(glm::angleAxis(glm::radians(m_v3Rotation.x), AXIS_X));
+	m_qOrientation *= quaternion(glm::angleAxis(glm::radians(m_v3Rotation.y), AXIS_Y));
+	m_qOrientation *= quaternion(glm::angleAxis(glm::radians(m_v3Rotation.z), AXIS_Z));
+
+	m_v3Rotation = vector3(0.0f);
+
 	/*
 	* The following line was replaced by the model manager so we can see a model instead of a cone
 	*/
