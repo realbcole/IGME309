@@ -3,13 +3,11 @@ using namespace BTX;
 //Allocation
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	//TODO: Calculate the SAT algorithm I STRONGLY suggest you use the
-	//Real Time Collision detection algorithm for OBB here but feel free to
-	//implement your own solution.
-	
-	vector3 localX = vector3(m_m4ToWorld[0][0], m_m4ToWorld[0][1], m_m4ToWorld[0][2]);
-	vector3 localY = vector3(m_m4ToWorld[1][0], m_m4ToWorld[1][1], m_m4ToWorld[1][2]);
-	vector3 localZ = vector3(m_m4ToWorld[2][0], m_m4ToWorld[2][1], m_m4ToWorld[2][2]);
+	// Calculate local x,y,z axes
+	// I believe the reason this does not work is because I am computing these axes wrong, asked professor and he said to do it this way
+	vector3 localX = vector3(m_m4ToWorld[0][1], m_m4ToWorld[0][2], m_m4ToWorld[0][3]);
+	vector3 localY = vector3(m_m4ToWorld[1][1], m_m4ToWorld[1][2], m_m4ToWorld[1][3]);
+	vector3 localZ = vector3(m_m4ToWorld[2][1], m_m4ToWorld[2][2], m_m4ToWorld[2][3]);
 	
 	axes[0] = localX;
 	axes[1] = localY;
@@ -18,73 +16,87 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	float ra, rb;
 	matrix3 R, absR;
 	
+	// Compute rotation matrix expressing the other model in this models coordinate frame
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			R[i][j] = glm::dot(this->axes[i], a_pOther->axes[j]);
 		}
 	}
 	
+	// Compute translation vector t
 	vector3 t = a_pOther->m_v3Center - this->m_v3Center;
 
+	// Bring translation into this model's coordinate frame
 	t = vector3(glm::dot(t, this->axes[0]), glm::dot(t, this->axes[1]), glm::dot(t, this->axes[2]));
 	
+	// Compute common subexpressions
 	for (int i = 0; i < 3; i++) {
 		for (int j = 0; j < 3; j++) {
 			absR[i][j] = glm::abs(R[i][j]) + glm::epsilon<float>();
 		}
 	}
 
+	// Test axes L = A0, L = A1, L = A2
 	for (int i = 0; i < 3; i++) {
 		ra = this->m_v3HalfWidth[i];
 		rb = a_pOther->m_v3HalfWidth[0] * absR[i][0] + a_pOther->m_v3HalfWidth[1] * absR[i][1] + a_pOther->m_v3HalfWidth[2] * absR[i][2];
 		if (glm::abs(t[i]) > ra + rb) return 0;
 	}
 
+	// Test axes L = B0, L = B1, L = B2
 	for (int i = 0; i < 3; i++) {
 		ra = this->m_v3HalfWidth[0] * absR[0][i] + this->m_v3HalfWidth[1] * absR[1][i] + this->m_v3HalfWidth[2] * absR[2][i];
 		rb = a_pOther->m_v3HalfWidth[i];
 		if (glm::abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return 0;
 	}
 	
+	// Test axis L = A0 x B0
 	ra = this->m_v3HalfWidth[1] * absR[2][0] + this->m_v3HalfWidth[2] * absR[1][0];
 	rb = a_pOther->m_v3HalfWidth[1] * absR[0][2] + a_pOther->m_v3HalfWidth[2] * absR[0][1];
 	if (glm::abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return 0;
 
+	// Test axis L = A0 x B1
 	ra = this->m_v3HalfWidth[1] * absR[2][1] + this->m_v3HalfWidth[2] * absR[1][1];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[0][2] + a_pOther->m_v3HalfWidth[2] * absR[0][0];
 	if (glm::abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 0;
 
+	// Test axis L = A0 x B2
 	ra = this->m_v3HalfWidth[1] * absR[2][2] + this->m_v3HalfWidth[2] * absR[1][2];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[0][1] + a_pOther->m_v3HalfWidth[1] * absR[0][0];
 	if (glm::abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 0;
 
+	// Test axis L = A1 x B0
 	ra = this->m_v3HalfWidth[0] * absR[2][0] + this->m_v3HalfWidth[2] * absR[0][0];
 	rb = a_pOther->m_v3HalfWidth[1] * absR[1][2] + a_pOther->m_v3HalfWidth[2] * absR[1][1];
 	if (glm::abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 0;
 
+	// Test axis L = A1 x B1
 	ra = this->m_v3HalfWidth[0] * absR[2][1] + this->m_v3HalfWidth[2] * absR[0][1];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[1][2] + a_pOther->m_v3HalfWidth[2] * absR[1][0];
 	if (glm::abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 0;
 
+	// Test axis L = A1 x B2
 	ra = this->m_v3HalfWidth[0] * absR[2][2] + this->m_v3HalfWidth[2] * absR[0][2];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[1][1] + a_pOther->m_v3HalfWidth[1] * absR[1][0];
 	if (glm::abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 0;
 
+	// Test axis L = A2 x B0
 	ra = this->m_v3HalfWidth[0] * absR[1][0] + this->m_v3HalfWidth[1] * absR[0][0];
 	rb = a_pOther->m_v3HalfWidth[1] * absR[2][2] + a_pOther->m_v3HalfWidth[2] * absR[2][1];
 	if (glm::abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 0;
 
+	// Test axis L = A2 x B1
 	ra = this->m_v3HalfWidth[0] * absR[1][1] + this->m_v3HalfWidth[1] * absR[0][1];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[2][2] + a_pOther->m_v3HalfWidth[2] * absR[2][0];
 	if (glm::abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 0;
 
+	// Test axis L = A2 x B2
 	ra = this->m_v3HalfWidth[0] * absR[1][2] + this->m_v3HalfWidth[1] * absR[0][2];
 	rb = a_pOther->m_v3HalfWidth[0] * absR[2][1] + a_pOther->m_v3HalfWidth[1] * absR[2][0];
 	if (glm::abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 0;
 
-
+	// Since no seperating axis is found, the models are colliding
 	return 1;
-	//return BTXs::eSATResults::SAT_NONE;
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
